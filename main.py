@@ -1,4 +1,3 @@
-import math
 import pygame
 from pygame.sprite import Group
 from bullet import Bullet
@@ -9,11 +8,19 @@ from player import Player
 
 pygame.init()
 
-WIDTH = 1200
-HEIGHT = 800
+DISPLAY_INFO = pygame.display.Info()
+
+WIDTH = DISPLAY_INFO.current_w
+HEIGHT = DISPLAY_INFO.current_h
+
 clock = pygame.time.Clock()
-start_time = time()
-wait_time = 2
+
+start_time_enemy = time()
+start_time_shoot = time()
+
+time_wait_for_enemy = 1
+time_wait_to_shoot = 0.15
+
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen_rect = screen.get_rect()
 background_image = pygame.image.load("background.jpg")
@@ -55,11 +62,21 @@ def enemies_update():
 
 
 def create_enemy():
-    global start_time
-    current_time = time() - start_time
-    if current_time >= wait_time:
-        start_time = time()
+    global start_time_enemy
+    t = time()
+    current_time = t - start_time_enemy
+    if current_time >= time_wait_for_enemy:
+        start_time_enemy = t
         enemies.add(Enemy())
+
+
+def player_shoot(pos):
+    global start_time_shoot
+    t = time()
+    current_time = t - start_time_shoot
+    if current_time >= time_wait_to_shoot:
+        start_time_shoot = t
+        bullets.add(Bullet(player.rect, pos))
 
 
 while True:
@@ -92,8 +109,7 @@ while True:
                 player.player_speed = 5
 
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            pos = event.pos
-            bullets.add(Bullet(player.rect, pos))
+            player_shoot(event.pos)
 
     screen.blit(background_image, background_image_rect)
     bullets_update()

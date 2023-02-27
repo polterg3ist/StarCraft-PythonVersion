@@ -12,7 +12,7 @@ class Enemy(Sprite):
         self.image = pygame.transform.smoothscale(self.image, (120, 80))
         self.rect = self.image.get_rect()
         self.rect.bottom = self.screen_rect.top
-        self.rect.centerx = self.screen_rect.centerx
+        self.rect.centerx = randint(0, self.screen_rect.width)
         self.speed = 10
         self.dir_x = randint(-5, 5)
         self.dir_y = self.speed

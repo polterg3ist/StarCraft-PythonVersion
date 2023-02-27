@@ -14,6 +14,7 @@ class Player(Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.screen_rect.center
         self.player_speed = 5
+        self.shoot_cooldown = 0.5
 
         self.player_move_up = False
         self.player_move_down = False
