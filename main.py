@@ -1,6 +1,5 @@
 import pygame
 from pygame.sprite import Group
-from bullet import Bullet
 from enemy import Enemy
 from time import time
 from player import Player
@@ -16,10 +15,8 @@ HEIGHT = DISPLAY_INFO.current_h
 clock = pygame.time.Clock()
 
 start_time_enemy = time()
-start_time_shoot = time()
 
 time_wait_for_enemy = 1
-time_wait_to_shoot = 0.15
 
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 screen_rect = screen.get_rect()
@@ -28,10 +25,11 @@ background_image = pygame.transform.smoothscale(background_image, (WIDTH, HEIGHT
 background_image_rect = background_image.get_rect()
 FPS = 60
 
-player = Player()
 
-bullets = Group()
 enemies = Group(Enemy())
+bullets = Group()
+
+player = Player(bullets, enemies)
 
 
 def bullets_update():
@@ -58,7 +56,7 @@ def enemies_update():
         enemy.draw()
 
     if pygame.sprite.spritecollideany(player, enemies):
-        exit()
+        player.is_dead = True
 
 
 def create_enemy():
@@ -70,20 +68,11 @@ def create_enemy():
         enemies.add(Enemy())
 
 
-def player_shoot(pos):
-    global start_time_shoot
-    t = time()
-    current_time = t - start_time_shoot
-    if current_time >= time_wait_to_shoot:
-        start_time_shoot = t
-        bullets.add(Bullet(player.rect, pos))
-
-
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             exit()
-        elif event.type == pygame.KEYDOWN:
+        if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_a:
                 player.player_move_left = True
             elif event.key == pygame.K_d:
@@ -92,10 +81,8 @@ while True:
                 player.player_move_up = True
             elif event.key == pygame.K_s:
                 player.player_move_down = True
-
             elif event.key == pygame.K_LSHIFT:
-                player.player_speed = 10
-
+                player.player_speed *= 2
         elif event.type == pygame.KEYUP:
             if event.key == pygame.K_a:
                 player.player_move_left = False
@@ -107,14 +94,13 @@ while True:
                 player.player_move_down = False
             elif event.key == pygame.K_LSHIFT:
                 player.player_speed = 5
-
+            elif event.key == pygame.K_ESCAPE:
+                exit()
         elif event.type == pygame.MOUSEBUTTONDOWN:
-            player_shoot(event.pos)
-
+            player.shoot(event.pos)
     screen.blit(background_image, background_image_rect)
     bullets_update()
     player.update()
-    player.draw()
     create_enemy()
     enemies_update()
 
